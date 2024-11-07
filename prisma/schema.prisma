@@ -15,21 +15,24 @@ datasource db {
 
 model User {
   id        Int      @id @default(autoincrement())
-  username     String   @unique
+  username  String   @unique
   name      String?
-  password String
+  password  String
   bills     Bill[]
+  expenses  Expense[]
   createdAt DateTime @default(now())
 }
 
 model Bill {
-  id        String    @id @default(uuid())
-  amount    Int 
+  id          String    @id @default(uuid())
+  amount      Int
   description String?
-  category String?
-  userId        Int 
+  categoryId  Int?
+  userId      Int
   createdAt   DateTime @default(now())
-  user         User     @relation(fields: [userId], references: [id])
+
+  user        User      @relation(fields: [userId], references: [id])
+  category    Category? @relation(name: "BillToCategory", fields: [categoryId], references: [id]) // Make category optional
 }
 
 model Expense {
@@ -38,19 +41,26 @@ model Expense {
   description String?
   categoryId  Int
   userId      Int
+  transaction Transaction[]
   createdAt   DateTime @default(now())
+
+  user        User      @relation(fields: [userId], references: [id])
+  category    Category  @relation(name: "ExpenseToCategory", fields: [categoryId], references: [id])
 }
 
 model Category {
-  id       Int      @id @default(autoincrement())
-  name     String   @unique
-  bills    Bill[]
-  createdAt DateTime @default(now())
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  bills     Bill[]    @relation(name: "BillToCategory")
+  expenses  Expense[] @relation(name: "ExpenseToCategory")
+  createdAt DateTime  @default(now())
 }
 
 model Transaction {
-  id          String   @id @default(uuid())
-  expenseId   String
-  date        DateTime @default(now())
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  expenseId  String
+  date       DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  expense    Expense  @relation(fields: [expenseId], references: [id])
 }
