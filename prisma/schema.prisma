@@ -32,6 +32,15 @@ model Bill {
   user         User     @relation(fields: [userId], references: [id])
 }
 
+model Expense {
+  id          String    @id @default(uuid())
+  amount      Int
+  description String?
+  categoryId  Int
+  userId      Int
+  createdAt   DateTime @default(now())
+}
+
 model Category {
   id       Int      @id @default(autoincrement())
   name     String   @unique
