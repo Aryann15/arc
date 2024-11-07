@@ -38,3 +38,10 @@ model Category {
   bills    Bill[]
   createdAt DateTime @default(now())
 }
+
+model Transaction {
+  id          String   @id @default(uuid())
+  expenseId   String
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+}
