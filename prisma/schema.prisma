@@ -31,3 +31,10 @@ model Bill {
   createdAt   DateTime @default(now())
   user         User     @relation(fields: [userId], references: [id])
 }
+
+model Category {
+  id       Int      @id @default(autoincrement())
+  name     String   @unique
+  bills    Bill[]
+  createdAt DateTime @default(now())
+}
