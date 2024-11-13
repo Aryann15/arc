@@ -43,19 +43,15 @@ export async function uploadBill(formData: FormData) {
       throw new Error('Gemini API key is not configured')
     }
 
-    // Initialize FileManager and GenerativeAI
     const fileManager = new GoogleAIFileManager(apiKey)
     const genAI = new GoogleGenerativeAI(apiKey)
 
-    // Convert File to Buffer
     const buffer = Buffer.from(await file.arrayBuffer())
     
-    // Create a temporary file path
     const tempFilePath = `/tmp/${file.name}`
     const fs = require('fs').promises
     await fs.writeFile(tempFilePath, buffer)
 
-    // Upload file to Google AI
     console.log('Server Action: Uploading file to Google AI')
     const uploadResult = await fileManager.uploadFile(
       tempFilePath,
@@ -67,7 +63,6 @@ export async function uploadBill(formData: FormData) {
 
     console.log('Server Action: File uploaded successfully:', uploadResult.file.uri)
 
-    // Initialize model and analyze image
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
     
     const prompt = "You are a receipt analyzer. Analyze this bill/receipt and return ONLY a JSON object with these exact fields:" +
@@ -89,35 +84,30 @@ export async function uploadBill(formData: FormData) {
 
     console.log('Server Action: Received raw response from Gemini:', result.response.text())
     
-    // Parse the response
     const analysis = parseGeminiResponse(result.response.text())
     console.log('Server Action: Parsed analysis:', analysis)
 
 
-    // Validate required fields
     if (!analysis.totalAmount || !analysis.merchantName || !analysis.category) {
       throw new Error('Incomplete analysis result')
     }
 
-    // First, ensure we have a default user
     const user = await prisma.user.upsert({
       where: { username: 'default_user' },
       update: {},
       create: {
         username: 'default_user',
         name: 'Default User',
-        password: 'placeholder_password' // In a real app, use proper password hashing
+        password: 'placeholder_password' // TODO, use proper password hashing
       }
     })
 
-    // Get or create the category
     const category = await prisma.category.upsert({
       where: { name: analysis.category },
       update: {},
       create: { name: analysis.category }
     })
 
-    // Create the bill with the valid user ID
     console.log('Server Action: Creating bill in database')
     console.log('Server Action: Total Amount before saving:', typeof analysis.totalAmount, analysis.totalAmount)
     const bill = await prisma.bill.create({
