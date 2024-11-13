@@ -25,4 +25,7 @@ export async function uploadBill(formData: FormData) {
       if (!apiKey) {
         throw new Error('Gemini API key is not configured')
       }
+      const fileManager = new GoogleAIFileManager(apiKey)
+    const genAI = new GoogleGenerativeAI(apiKey)
+
     }}
