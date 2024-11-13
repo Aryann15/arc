@@ -20,13 +20,22 @@ type Transaction = {
   }
 }
 export default function TransactionPage() {
+    const [transactions, setTransactions] = useState<Transaction[]>([])
+    const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [searchTerm, setSearchTerm] = useState('')
+    const [selectedCategory, setSelectedCategory] = useState<string>('all')
+    const [sortConfig, setSortConfig] = useState({
+      key: 'createdAt',
+      direction: 'desc'
+    })
 
     useEffect(() => {
         const fetchTransactions = async () => {
           try {
             const response = await fetch('/api/bills')
             const data = await response.json()
-            setTransactions(data) //tbd
+            setTransactions(data)
             setFilteredTransactions(data) //tbd
             setIsLoading(false) //tbd
           } catch (error) {
