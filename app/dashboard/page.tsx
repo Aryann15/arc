@@ -1,6 +1,13 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
 import { uploadBill } from "../actions/bill";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { Tooltip } from "recharts";
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Upload, Wallet, TrendingUp, Calendar, Filter, Download } from 'lucide-react';
+
 
 type Bill = {
   id: string;
@@ -28,8 +35,8 @@ export default function Dashboard() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [bills, setBills] = useState<Bill[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<CategoryTotal[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [weeklyExpenses, setWeeklyExpenses] = useState<WeeklyExpense[]>([]);
 
 
@@ -43,12 +50,24 @@ export default function Dashboard() {
     Groceries: "rgb(255, 178, 102)",
   };
 
-  useEffect(() => {
-    fetchBills();
-  }, []);
+  const getWeekDetails = (date: Date) => {
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - date.getDay()); // Set to Sunday
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6); // Set to Saturday
+
+    return {
+      weekString: `${startOfWeek.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })} - ${endOfWeek.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })}`,
+      startDate: startOfWeek,
+      endDate: endOfWeek,
+    };
   };
 
   const fetchBills = async () => {
@@ -86,6 +105,7 @@ export default function Dashboard() {
         .slice(-6);
 
       setWeeklyExpenses(weeklyExpensesArray);
+
       const categoryData: CategoryTotal[] = Object.entries(categoryTotals).map(
         ([name, total]) => ({
           name,
@@ -103,6 +123,14 @@ export default function Dashboard() {
       console.error("Error fetching bills:", error);
       setIsLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchBills();
+  }, []);
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
   const handleFileChange = async (
@@ -129,8 +157,20 @@ export default function Dashboard() {
     }
   };
 
-return (
-    <div className="p-8 max-w-7xl mx-auto">
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const formatAmount = (amount: number) => {
+    return `₹${amount.toLocaleString("en-IN")}`;
+  };
+
+  return (
+<div className="p-8 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl font-bold">ARC</h1>
@@ -155,47 +195,50 @@ return (
           onChange={handleFileChange}
         />
       </div>
+
       <div className="grid grid-cols-2 gap-6 mb-8">
         <div className="p-6 bg-white rounded-lg shadow">
           <h2 className="text-lg font-medium mb-4">Expense Categories</h2>
           {isLoading ? (
             <div className="h-64 flex items-center justify-center">
               <p>Loading categories...</p>
-            </div> ):(
-               <>
-               <div className="relative" style={{ paddingBottom: "100%" }}>
-                 <svg viewBox="0 0 100 100" className="absolute inset-0">
-                   {categories.map((category, index) => {
-                     const previousSlices = categories.slice(0, index);
-                     const startAngle = previousSlices.reduce(
-                       (acc, slice) => acc + slice.percentage * 3.6,
-                       0
-                     );
-                     const endAngle = startAngle + category.percentage * 3.6;
- 
-                     const startRadians = ((startAngle - 90) * Math.PI) / 180;
-                     const endRadians = ((endAngle - 90) * Math.PI) / 180;
- 
-                     const x1 = 50 + 40 * Math.cos(startRadians);
-                     const y1 = 50 + 40 * Math.sin(startRadians);
-                     const x2 = 50 + 40 * Math.cos(endRadians);
-                     const y2 = 50 + 40 * Math.sin(endRadians);
- 
-                     const largeArcFlag = category.percentage > 50 ? 1 : 0;
- 
-                     const d = [
-                       `M 50 50`,
-                       `L ${x1} ${y1}`,
-                       `A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-                       "Z",
-                     ].join(" ");
- 
-                     return (
-                       <path key={category.name} d={d} fill={category.color} />
-                     );
-                   })}
-                 </svg>
-               </div> <div className="mt-4 grid grid-cols-2 gap-2">
+            </div>
+          ) : (
+            <>
+              <div className="relative" style={{ paddingBottom: "100%" }}>
+                <svg viewBox="0 0 100 100" className="absolute inset-0">
+                  {categories.map((category, index) => {
+                    const previousSlices = categories.slice(0, index);
+                    const startAngle = previousSlices.reduce(
+                      (acc, slice) => acc + slice.percentage * 3.6,
+                      0
+                    );
+                    const endAngle = startAngle + category.percentage * 3.6;
+
+                    const startRadians = ((startAngle - 90) * Math.PI) / 180;
+                    const endRadians = ((endAngle - 90) * Math.PI) / 180;
+
+                    const x1 = 50 + 40 * Math.cos(startRadians);
+                    const y1 = 50 + 40 * Math.sin(startRadians);
+                    const x2 = 50 + 40 * Math.cos(endRadians);
+                    const y2 = 50 + 40 * Math.sin(endRadians);
+
+                    const largeArcFlag = category.percentage > 50 ? 1 : 0;
+
+                    const d = [
+                      `M 50 50`,
+                      `L ${x1} ${y1}`,
+                      `A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+                      "Z",
+                    ].join(" ");
+
+                    return (
+                      <path key={category.name} d={d} fill={category.color} />
+                    );
+                  })}
+                </svg>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-2">
                 {categories.map((category) => (
                   <div key={category.name} className="flex items-center">
                     <div
@@ -214,7 +257,7 @@ return (
         <div className="p-6 bg-white rounded-lg shadow">
           <h2 className="text-lg font-medium mb-4">Weekly Expenses</h2>
           <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%">
               <LineChart data={weeklyExpenses}>
                 <XAxis
                   dataKey="week"
@@ -257,6 +300,7 @@ return (
           </div>
         </div>
       </div>
+
       <div>
         <h2 className="text-xl font-bold mb-4">Expense History</h2>
         <div className="grid grid-cols-3 gap-4">
@@ -286,3 +330,4 @@ return (
           )}
         </div>
       </div>
+      </div> )}
