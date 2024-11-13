@@ -1,9 +1,3 @@
-import React from 'react'
-
-const Dashboard = () => {
-  return (
-    <div>Dashboard</div>
-  )
-}
-
-export default Dashboard
+"use client";
+import React, { useRef, useState, useEffect } from "react";
+import { uploadBill } from "../actions/bill";
