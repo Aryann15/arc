@@ -55,6 +55,10 @@ export default function Dashboard() {
           })
         );
       })
+      categoryData.sort((a, b) => b.percentage - a.percentage);
+
+      setCategories(categoryData);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching bills:", error);
       setIsLoading(false);
