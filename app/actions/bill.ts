@@ -82,5 +82,30 @@ export async function uploadBill(formData: FormData) {
         update: {},
         create: { name: analysis.category }
       })
+      console.log('Server Action: Creating bill in database')
+      console.log('Server Action: Total Amount before saving:', typeof analysis.totalAmount, analysis.totalAmount)
+      const bill = await prisma.bill.create({
+        data: {
+          amount: Math.round(analysis.totalAmount),
+          description: analysis.merchantName,
+          userId: user.id, 
+          categoryId: category.id
+        },
+        include: {
+          category: true,
+          user: true
+        }
+      })
   
-    }}
+      console.log('Server Action: Bill created successfully:', bill)
+      revalidatePath('/dashboard')
+      return { success: true, bill }
+      
+    } catch (error) {
+      console.error('Server Action Error:', error)
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
+      }
+    }
+  }
