@@ -31,4 +31,14 @@ export async function uploadBill(formData: FormData) {
     const tempFilePath = `/tmp/${file.name}`
     const fs = require('fs').promises
     await fs.writeFile(tempFilePath, buffer)
+    console.log('Server Action: uploadding')
+    const uploadResult = await fileManager.uploadFile(
+      tempFilePath,
+      {
+        mimeType: file.type,
+        displayName: file.name,
+      }
+    )
+    console.log('Server Action: File uploaded successfully:', uploadResult.file.uri)
+
     }}
