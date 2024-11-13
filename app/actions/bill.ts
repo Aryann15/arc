@@ -77,4 +77,10 @@ export async function uploadBill(formData: FormData) {
           password: 'aryan_tech' // TODO, use proper password hashing
         }
       })
+      const category = await prisma.category.upsert({
+        where: { name: analysis.category },
+        update: {},
+        create: { name: analysis.category }
+      })
+  
     }}
