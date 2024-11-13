@@ -18,5 +18,6 @@ export default function TransactionPage() {
     
         fetchTransactions()
       }, [])
-    
+      const categories = ['all', ...new Set(transactions.map(t => t.category?.name || 'Uncategorized'))]
+
 }
