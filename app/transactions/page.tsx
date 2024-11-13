@@ -95,6 +95,14 @@ export default function TransactionPage() {
             ))}
           </select>
         </div>
+
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="text-sm text-blue-600">Total Amount</div>
+          <div className="text-2xl font-bold text-blue-800">
+            {formatCurrency(totalAmount)}
+          </div>
+        </div>
+      </div>
            ) 
   }
 }
