@@ -38,6 +38,14 @@ export default function Dashboard() {
       const response = await fetch("/api/bills");
       const data = await response.json();
       setBills(data);
+      const categoryTotals: Record<string, number> = {};
+      let totalExpense = 0;
+      data.forEach((bill: Bill) => {
+        const categoryName = bill.category?.name || "Others";
+        categoryTotals[categoryName] =
+          (categoryTotals[categoryName] || 0) + bill.amount;
+        totalExpense += bill.amount;
+      })
     } catch (error) {
       console.error("Error fetching bills:", error);
       setIsLoading(false);
