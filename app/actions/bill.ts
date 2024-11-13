@@ -62,4 +62,9 @@ export async function uploadBill(formData: FormData) {
     console.log('Server Action: Received raw response from Gemini:', result.response.text())
     const analysis = parseGemResponse(result.response.text())
     console.log('Server Action: Parsed analysis:', analysis)
+
+    if (!analysis.totalAmount || !analysis.merchantName || !analysis.category) {
+        throw new Error('Incomplete analysis result')
+      }
+  
     }}
