@@ -56,6 +56,7 @@ export default function Dashboard() {
       const response = await fetch("/api/bills");
       const data = await response.json();
       setBills(data);
+
       const categoryTotals: Record<string, number> = {};
       let totalExpense = 0;
       data.forEach((bill: Bill) => {
@@ -63,16 +64,37 @@ export default function Dashboard() {
         categoryTotals[categoryName] =
           (categoryTotals[categoryName] || 0) + bill.amount;
         totalExpense += bill.amount;
+      });
+      const weeklyData: Record<string, number> = {};
 
-        const categoryData: CategoryTotal[] = Object.entries(categoryTotals).map(
-          ([name, total]) => ({
-            name,
-            total,
-            percentage: totalExpense > 0 ? (total / totalExpense) * 100 : 0,
-            color: categoryColors[name] || "rgb(162, 162, 162)",
-          })
-        );
-      })
+      data.forEach((bill: Bill) => {
+        const billDate = new Date(bill.createdAt);
+        const { weekString } = getWeekDetails(billDate);
+        weeklyData[weekString] = (weeklyData[weekString] || 0) + bill.amount;
+      });
+
+      const weeklyExpensesArray = Object.entries(weeklyData)
+        .map(([week, total]) => ({
+          week,
+          total: total
+        }))
+        .sort((a, b) => {
+          const dateA = new Date(a.week.split(" - ")[0]);
+          const dateB = new Date(b.week.split(" - ")[0]);
+          return dateA.getTime() - dateB.getTime();
+        })
+        .slice(-6);
+
+      setWeeklyExpenses(weeklyExpensesArray);
+      const categoryData: CategoryTotal[] = Object.entries(categoryTotals).map(
+        ([name, total]) => ({
+          name,
+          total,
+          percentage: totalExpense > 0 ? (total / totalExpense) * 100 : 0,
+          color: categoryColors[name] || "rgb(162, 162, 162)",
+        })
+      );
+
       categoryData.sort((a, b) => b.percentage - a.percentage);
 
       setCategories(categoryData);
@@ -82,7 +104,6 @@ export default function Dashboard() {
       setIsLoading(false);
     }
   };
-
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
