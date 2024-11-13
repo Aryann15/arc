@@ -18,7 +18,7 @@ export default function Dashboard() {
   const [isUploading, setIsUploading] = useState(false);
   const [bills, setBills] = useState<Bill[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const handleUploadClick = () => {
     fileInputRef.current?.click();
   };
@@ -85,6 +85,15 @@ return (
           onChange={handleFileChange}
         />
       </div>
+      <div className="grid grid-cols-2 gap-6 mb-8">
+        <div className="p-6 bg-white rounded-lg shadow">
+          <h2 className="text-lg font-medium mb-4">Expense Categories</h2>
+          {isLoading ? (
+            <div className="h-64 flex items-center justify-center">
+              <p>Loading categories...</p>
+            </div> ):(
+              <div></div>
+            )}
       </div>
 )}
 
