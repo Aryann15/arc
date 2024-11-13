@@ -40,5 +40,20 @@ export async function uploadBill(formData: FormData) {
       }
     )
     console.log('Server Action: File uploaded successfully:', uploadResult.file.uri)
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+    
+    const prompt = "You are a receipt analyzer. Analyze this bill/receipt and return ONLY a JSON object with these exact fields:"
+                  
+    const result = await model.generateContent([
+      prompt,
+      {
+        fileData: {
+          fileUri: uploadResult.file.uri,
+          mimeType: uploadResult.file.mimeType,
+        },
+      }
+    ])
+
+    console.log('Server Action: Received raw response from Gemini:', result.response.text())
 
     }}
