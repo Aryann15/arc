@@ -180,7 +180,49 @@ return (
         <div className="p-6 bg-white rounded-lg shadow">
           <h2 className="text-lg font-medium mb-4">Weekly Expenses</h2>
           <div className="h-64">
-            </div>
+          <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={weeklyExpenses}>
+                <XAxis
+                  dataKey="week"
+                  stroke="#94a3b8"
+                  tick={{ fontSize: 12 }}
+                  angle={-15}
+                  textAnchor="end"
+                />
+                <YAxis
+                  stroke="#94a3b8"
+                  tickFormatter={(value) => `₹${value.toLocaleString("en-IN")}`}
+                />
+                <Tooltip
+                  formatter={(value: number) => [
+                    `₹${value.toLocaleString("en-IN")}`,
+                    "Total",
+                  ]}
+                  labelFormatter={(label) => `Week: ${label}`}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="total"
+                  stroke="#2563eb"
+                  strokeWidth={2}
+                  dot={{
+                    stroke: "#2563eb",
+                    strokeWidth: 2,
+                    fill: "#ffffff",
+                    r: 4,
+                  }}
+                  activeDot={{
+                    stroke: "#2563eb",
+                    strokeWidth: 2,
+                    fill: "#2563eb",
+                    r: 6,
+                  }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
           </div>
 </div>
    </div>)} 
