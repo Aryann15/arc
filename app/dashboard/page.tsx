@@ -118,7 +118,6 @@ export default function Dashboard() {
       const result = await uploadBill(formData);
 
       if (result.success) {
-        // Refresh the bills list
         fetchBills();
       } else {
         console.error("Upload failed:", result.error);
@@ -129,6 +128,7 @@ export default function Dashboard() {
       setIsUploading(false);
     }
   };
+
 return (
     <div className="p-8 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
@@ -257,6 +257,32 @@ return (
           </div>
         </div>
       </div>
-          </div>
-</div>
-   </div>)} 
+      <div>
+        <h2 className="text-xl font-bold mb-4">Expense History</h2>
+        <div className="grid grid-cols-3 gap-4">
+          {isLoading ? (
+            <div className="col-span-3 text-center py-8">Loading bills...</div>
+          ) : bills.length === 0 ? (
+            <div className="col-span-3 text-center py-8">
+              No bills found. Upload your first bill!
+            </div>
+          ) : (
+            bills.map((bill) => (
+              <div key={bill.id} className="p-4 bg-white rounded-lg shadow">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="font-medium">{bill.description}</h3>
+                    <p className="text-sm text-gray-500">
+                      Uploaded on {formatDate(bill.createdAt)}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Category: {bill.category?.name || "Uncategorized"}
+                    </p>
+                  </div>
+                  <span className="font-bold">{formatAmount(bill.amount)}</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
