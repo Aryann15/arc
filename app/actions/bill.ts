@@ -66,5 +66,15 @@ export async function uploadBill(formData: FormData) {
     if (!analysis.totalAmount || !analysis.merchantName || !analysis.category) {
         throw new Error('Incomplete analysis result')
       }
-  
+
+      //using a default user for now. TODO after authentiacation
+      const user = await prisma.user.upsert({
+        where: { username: 'default_user' },
+        update: {},
+        create: {
+          username: 'default_user',
+          name: 'Default User',
+          password: 'aryan_tech' // TODO, use proper password hashing
+        }
+      })
     }}
