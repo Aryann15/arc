@@ -30,5 +30,29 @@ export default function TransactionPage() {
           direction: sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc'
         })
       }
+
+      const exportToCSV = () => {
+        const headers = ['Date', 'Description', 'Category', 'Amount']
+        const csvData = filteredTransactions.map(t => [
+          format(new Date(t.createdAt), 'yyyy-MM-dd'),
+          t.description,
+          t.category?.name || 'Uncategorized',
+          formatCurrency(t.amount)
+        ])
+    
+        const csvContent = [
+          headers.join(','),
+          ...csvData.map(row => row.join(','))
+        ].join('\n')
+    
+        const blob = new Blob([csvContent], { type: 'text/csv' })
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `transactions-${format(new Date(), 'yyyy-MM-dd')}.csv`
+        a.click()
+        window.URL.revokeObjectURL(url)
+      }
+    
   }
 }
