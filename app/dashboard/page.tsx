@@ -16,9 +16,24 @@ type Bill = {
 export default function Dashboard() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [bills, setBills] = useState<Bill[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
   const handleUploadClick = () => {
     fileInputRef.current?.click();
   };
+
+  const fetchBills = async () => {
+    try {
+      const response = await fetch("/api/bills");
+      const data = await response.json();
+      setBills(data);
+    } catch (error) {
+      console.error("Error fetching bills:", error);
+      setIsLoading(false);
+    }
+  };
+
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
