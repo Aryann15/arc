@@ -12,6 +12,17 @@ type Bill = {
   };
 };
 
+type CategoryTotal = {
+  name: string;
+  total: number;
+  color: string;
+  percentage: number;
+};
+
+type WeeklyExpense = {
+  week: string;
+  total: number;
+};
 
 export default function Dashboard() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -19,6 +30,8 @@ export default function Dashboard() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<CategoryTotal[]>([]);
+  const [weeklyExpenses, setWeeklyExpenses] = useState<WeeklyExpense[]>([]);
+
 
   const categoryColors: Record<string, string> = {
     Food: "rgb(129, 201, 149)",
