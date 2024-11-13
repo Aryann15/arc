@@ -1,10 +1,27 @@
 'use server'
 
 import { PrismaClient } from '@prisma/client'
+import { revalidatePath } from 'next/cache'
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { GoogleAIFileManager } from "@google/generative-ai/server"
 
 const prisma = new PrismaClient()
+
+function parseGemResponse(text: string): any {
+    try {
+      const cleanedText = text
+        .replace(/```json\n/g, '')
+        .replace(/```\n/g, '')
+        .replace(/```/g, '')
+        .trim()
+      
+      return JSON.parse(cleanedText)
+    } catch (error) {
+      console.error('Error parsing Gemini response:', text)
+      throw new Error('Failed to parse bill analysis result')
+    }
+  }
+
 export async function uploadBill(formData: FormData) {
     console.log('Server Action: Starting bill upload process')
     
