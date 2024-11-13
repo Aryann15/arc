@@ -27,5 +27,8 @@ export async function uploadBill(formData: FormData) {
       }
       const fileManager = new GoogleAIFileManager(apiKey)
     const genAI = new GoogleGenerativeAI(apiKey)
-
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const tempFilePath = `/tmp/${file.name}`
+    const fs = require('fs').promises
+    await fs.writeFile(tempFilePath, buffer)
     }}
