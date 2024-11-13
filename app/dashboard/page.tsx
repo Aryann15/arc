@@ -177,5 +177,10 @@ return (
             </>
           )}
         </div>
-
-   
+        <div className="p-6 bg-white rounded-lg shadow">
+          <h2 className="text-lg font-medium mb-4">Weekly Expenses</h2>
+          <div className="h-64">
+            </div>
+          </div>
+</div>
+   </div>)} 
