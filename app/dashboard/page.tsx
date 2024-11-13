@@ -19,6 +19,16 @@ export default function Dashboard() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const categoryColors: Record<string, string> = {
+    Food: "rgb(129, 201, 149)",
+    Transport: "rgb(244, 114, 96)",
+    Utilities: "rgb(41, 98, 114)",
+    Entertainment: "rgb(241, 196, 99)",
+    Healthcare: "rgb(116, 185, 255)",
+    Others: "rgb(162, 162, 162)",
+    Groceries: "rgb(255, 178, 102)",
+  };
+
   const handleUploadClick = () => {
     fileInputRef.current?.click();
   };
