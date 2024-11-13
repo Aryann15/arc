@@ -24,5 +24,11 @@ export default function TransactionPage() {
 
   const formatCurrency = (amount: number) => {
     return `₹${(amount).toLocaleString('en-IN')}`
+    const handleSort = (key: keyof Transaction) => {
+        setSortConfig({
+          key,
+          direction: sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc'
+        })
+      }
   }
 }
