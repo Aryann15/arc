@@ -19,70 +19,108 @@ type Transaction = {
     name: string
   }
 }
-export default function TransactionPage() {
-    const [transactions, setTransactions] = useState<Transaction[]>([])
-    const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([])
-    const [isLoading, setIsLoading] = useState(true)
-    const [searchTerm, setSearchTerm] = useState('')
-    const [selectedCategory, setSelectedCategory] = useState<string>('all')
-    const [sortConfig, setSortConfig] = useState({
-      key: 'createdAt',
-      direction: 'desc'
+
+export default function TransactionsPage() {
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [sortConfig, setSortConfig] = useState({
+    key: 'createdAt',
+    direction: 'desc'
+  })
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch('/api/bills')
+        const data = await response.json()
+        setTransactions(data)
+        setFilteredTransactions(data)
+        setIsLoading(false)
+      } catch (error) {
+        console.error('Error fetching transactions:', error)
+        setIsLoading(false)
+      }
+    }
+
+    fetchTransactions()
+  }, [])
+
+  const categories = ['all', ...new Set(transactions.map(t => t.category?.name || 'Uncategorized'))]
+
+  useEffect(() => {
+    let filtered = [...transactions]
+
+    if (searchTerm) {
+      filtered = filtered.filter(t => 
+        t.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        t.category?.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(t => t.category?.name === selectedCategory)
+    }
+
+    filtered.sort((a, b) => {
+      const aValue = a[sortConfig.key as keyof Transaction]
+      const bValue = b[sortConfig.key as keyof Transaction]
+      
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortConfig.direction === 'asc' 
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue)
+      }
+      
+      return sortConfig.direction === 'asc'
+        ? (aValue as number) - (bValue as number)
+        : (bValue as number) - (aValue as number)
     })
 
-    useEffect(() => {
-        const fetchTransactions = async () => {
-          try {
-            const response = await fetch('/api/bills')
-            const data = await response.json()
-            setTransactions(data)
-            setFilteredTransactions(data) //tbd
-            setIsLoading(false) //tbd
-          } catch (error) {
-            console.error('Error fetching transactions:', error)
-            setIsLoading(false) //tbd
-          }
-        }
-    
-        fetchTransactions()
-      }, [])
-      const categories = ['all', ...new Set(transactions.map(t => t.category?.name || 'Uncategorized'))]
+    setFilteredTransactions(filtered)
+  }, [searchTerm, selectedCategory, sortConfig, transactions])
 
-      const totalAmount = filteredTransactions.reduce((sum, t) => sum + t.amount, 0)
+  const totalAmount = filteredTransactions.reduce((sum, t) => sum + t.amount, 0)
 
   const formatCurrency = (amount: number) => {
     return `₹${(amount).toLocaleString('en-IN')}`
-    const handleSort = (key: keyof Transaction) => {
-        setSortConfig({
-          key,
-          direction: sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc'
-        })
-      }
+  }
 
-      const exportToCSV = () => {
-        const headers = ['Date', 'Description', 'Category', 'Amount']
-        const csvData = filteredTransactions.map(t => [
-          format(new Date(t.createdAt), 'yyyy-MM-dd'),
-          t.description,
-          t.category?.name || 'Uncategorized',
-          formatCurrency(t.amount)
-        ])
-    
-        const csvContent = [
-          headers.join(','),
-          ...csvData.map(row => row.join(','))
-        ].join('\n')
-    
-        const blob = new Blob([csvContent], { type: 'text/csv' })
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `transactions-${format(new Date(), 'yyyy-MM-dd')}.csv`
-        a.click()
-        window.URL.revokeObjectURL(url)
-      }
-   return (
+  const handleSort = (key: keyof Transaction) => {
+    setSortConfig({
+      key,
+      direction: sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc'
+    })
+  }
+
+  const exportToCSV = () => {
+    const headers = ['Date', 'Description', 'Category', 'Amount']
+    const csvData = filteredTransactions.map(t => [
+      format(new Date(t.createdAt), 'yyyy-MM-dd'),
+      t.description,
+      t.category?.name || 'Uncategorized',
+      formatCurrency(t.amount)
+    ])
+
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row => row.join(','))
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `transactions-${format(new Date(), 'yyyy-MM-dd')}.csv`
+    a.click()
+    window.URL.revokeObjectURL(url)
+  }
+
+  return (
     <div className="p-8 max-w-7xl mx-auto">
+      {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl font-bold">Transactions</h1>
@@ -98,8 +136,11 @@ export default function TransactionPage() {
           Export CSV
         </button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"></div>
-      <div className="relative">
+
+      {/* Filters */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {/* Search */}
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           <input
             type="text"
@@ -109,6 +150,8 @@ export default function TransactionPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+
+        {/* Category Filter */}
         <div className="relative">
           <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           <select
@@ -124,13 +167,17 @@ export default function TransactionPage() {
           </select>
         </div>
 
+        {/* Total Amount */}
         <div className="bg-blue-50 p-4 rounded-lg">
           <div className="text-sm text-blue-600">Total Amount</div>
           <div className="text-2xl font-bold text-blue-800">
             {formatCurrency(totalAmount)}
           </div>
         </div>
-      </div><div className="bg-white rounded-lg shadow overflow-hidden">
+      </div>
+
+      {/* Transactions Table */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
