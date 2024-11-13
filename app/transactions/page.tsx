@@ -1,5 +1,24 @@
 "use client"
 import React, { useState, useEffect } from 'react'
+import { format } from 'date-fns'
+import { 
+  Search, 
+  Calendar,
+  ArrowUpDown,
+  Filter,
+  Download,
+  Receipt
+} from 'lucide-react'
+
+type Transaction = {
+  id: string
+  amount: number
+  description: string
+  createdAt: string
+  category?: {
+    name: string
+  }
+}
 export default function TransactionPage() {
 
     useEffect(() => {
