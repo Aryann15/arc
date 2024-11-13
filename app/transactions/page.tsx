@@ -20,4 +20,9 @@ export default function TransactionPage() {
       }, [])
       const categories = ['all', ...new Set(transactions.map(t => t.category?.name || 'Uncategorized'))]
 
+      const totalAmount = filteredTransactions.reduce((sum, t) => sum + t.amount, 0)
+
+  const formatCurrency = (amount: number) => {
+    return `₹${(amount).toLocaleString('en-IN')}`
+  }
 }
