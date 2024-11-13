@@ -161,10 +161,21 @@ return (
                      );
                    })}
                  </svg>
-               </div>
-            )}
-      </div>
-)}
-
+               </div> <div className="mt-4 grid grid-cols-2 gap-2">
+                {categories.map((category) => (
+                  <div key={category.name} className="flex items-center">
+                    <div
+                      className="w-3 h-3 rounded-full mr-2"
+                      style={{ backgroundColor: category.color }}
+                    />
+                    <span className="text-sm">
+                      {category.name} ({category.percentage.toFixed(1)}%)
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
 
    
