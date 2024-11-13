@@ -42,8 +42,13 @@ export async function uploadBill(formData: FormData) {
     console.log('Server Action: File uploaded successfully:', uploadResult.file.uri)
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
     
-    const prompt = "You are a receipt analyzer. Analyze this bill/receipt and return ONLY a JSON object with these exact fields:"
-                  
+    const prompt = "You are a receipt analyzer. Analyze this bill/receipt and return ONLY a JSON object with these exact fields:" +
+                  "totalAmount (number - just the number, no currency symbols), " +
+                  "date (string in YYYY-MM-DD format), " +
+                  "merchantName (string), " +
+                  "category (string - exactly one of: Groceries, Utilities, Entertainment, Food, Transport, Healthcare, Others). " +
+                  "Do not include any explanations or markdown formatting."
+
     const result = await model.generateContent([
       prompt,
       {
