@@ -45,6 +45,15 @@ export default function Dashboard() {
         categoryTotals[categoryName] =
           (categoryTotals[categoryName] || 0) + bill.amount;
         totalExpense += bill.amount;
+
+        const categoryData: CategoryTotal[] = Object.entries(categoryTotals).map(
+          ([name, total]) => ({
+            name,
+            total,
+            percentage: totalExpense > 0 ? (total / totalExpense) * 100 : 0,
+            color: categoryColors[name] || "rgb(162, 162, 162)",
+          })
+        );
       })
     } catch (error) {
       console.error("Error fetching bills:", error);
