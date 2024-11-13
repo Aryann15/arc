@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [isUploading, setIsUploading] = useState(false);
   const [bills, setBills] = useState<Bill[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [categories, setCategories] = useState<CategoryTotal[]>([]);
 
   const categoryColors: Record<string, string> = {
     Food: "rgb(129, 201, 149)",
@@ -28,6 +29,10 @@ export default function Dashboard() {
     Others: "rgb(162, 162, 162)",
     Groceries: "rgb(255, 178, 102)",
   };
+
+  useEffect(() => {
+    fetchBills();
+  }, []);
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
@@ -123,7 +128,40 @@ return (
             <div className="h-64 flex items-center justify-center">
               <p>Loading categories...</p>
             </div> ):(
-              <div></div>
+               <>
+               <div className="relative" style={{ paddingBottom: "100%" }}>
+                 <svg viewBox="0 0 100 100" className="absolute inset-0">
+                   {categories.map((category, index) => {
+                     const previousSlices = categories.slice(0, index);
+                     const startAngle = previousSlices.reduce(
+                       (acc, slice) => acc + slice.percentage * 3.6,
+                       0
+                     );
+                     const endAngle = startAngle + category.percentage * 3.6;
+ 
+                     const startRadians = ((startAngle - 90) * Math.PI) / 180;
+                     const endRadians = ((endAngle - 90) * Math.PI) / 180;
+ 
+                     const x1 = 50 + 40 * Math.cos(startRadians);
+                     const y1 = 50 + 40 * Math.sin(startRadians);
+                     const x2 = 50 + 40 * Math.cos(endRadians);
+                     const y2 = 50 + 40 * Math.sin(endRadians);
+ 
+                     const largeArcFlag = category.percentage > 50 ? 1 : 0;
+ 
+                     const d = [
+                       `M 50 50`,
+                       `L ${x1} ${y1}`,
+                       `A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+                       "Z",
+                     ].join(" ");
+ 
+                     return (
+                       <path key={category.name} d={d} fill={category.color} />
+                     );
+                   })}
+                 </svg>
+               </div>
             )}
       </div>
 )}
